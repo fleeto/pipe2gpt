@@ -1,0 +1,29 @@
+# .gitignore for GoLand and macOS
+
+# GoLand 编辑器相关
+.idea/
+
+# macOS 系统文件
+.DS_Store
+
+# Go 语言相关
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.o
+*.a
+*.log
+/vendor/
+/bin/
+!vendor/plugin/*/bin/
+
+# GoLand 运行调试配置文件
+*.iml
+
+# 临时文件
+*.swp
+*.swo
