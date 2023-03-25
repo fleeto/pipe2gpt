@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16'
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          export GOOS=${{ matrix.goos }}
+          export GOARCH=${{ matrix.goarch }}
+          export GO111MODULE=on
+          go build -o bin/pipe2gpt-$GOOS-$GOARCH cmd/main.go
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: bin/pipe2gpt-${{ matrix.goos }}-${{ matrix.goarch }}
+          asset_name: pipe2gpt-${{ matrix.goos }}-${{ matrix.goarch }}
+          tag: ${{ github.ref }}
+          overwrite: true
+          prerelease: false
