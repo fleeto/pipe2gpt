@@ -3,13 +3,13 @@ name: Release
 on:
   release:
     types:
-      - created
+      - published
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write    
+      contents: write        
     strategy:
       matrix:
         goos: [linux, darwin]
@@ -29,13 +29,21 @@ jobs:
           export GOARCH=${{ matrix.goarch }}
           export GO111MODULE=on
           go build -o bin/pipe2gpt-$GOOS-$GOARCH cmd/main.go
+          chmod +x bin/pipe2gpt-$GOOS-$GOARCH
+
+      - name: Package
+        run: |
+          mkdir -p bin/package/pipe2gpt
+          cp bin/pipe2gpt-${{ matrix.goos }}-${{ matrix.goarch }} bin/package/pipe2gpt/pipe2gpt
+          cp conf.json bin/package/pipe2gpt/conf.json
+          tar czf bin/pipe2gpt-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz -C bin/package pipe2gpt
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: bin/pipe2gpt-${{ matrix.goos }}-${{ matrix.goarch }}
-          asset_name: pipe2gpt-${{ matrix.goos }}-${{ matrix.goarch }}
+          file: bin/pipe2gpt-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz
+          asset_name: pipe2gpt-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
           prerelease: false
